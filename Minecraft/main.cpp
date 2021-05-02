@@ -2,8 +2,15 @@
 #include <stdlib.h>
 
 #include "Block.h"
+#include "Object3d.h"
 #include "sfml_part/Vector2.hpp"
 #include "sfml_part/Vector3.hpp"
+
+
+double get_time() {
+  static clock_t start_time = clock();
+  return (double)(clock() - start_time) / CLOCKS_PER_SEC;
+}
 
 void Init() {
   glEnable(GL_DEPTH_TEST);
@@ -45,19 +52,21 @@ void Special(int key, int x, int y) {
 }
 
 void Display() {
+  glPushMatrix();
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  Block block({0, 0, 0}, {1, 1, 1}, {10, 0, 0});
-  for (size_t i = 0; i < 5; i++) {
-    block.Draw();
-    block.move({1, 0, 0});
-  }
-
+  glEnable(GL_TEXTURE_2D);
+  //Block block({0, 0, 0}, {1, 1, 1}, {0, 0, 0});
+  //block.Draw();
+  static Object3d obj("block");
+  glRotated(get_time() * 100, 0, 1, 0.3);
+  obj.draw();
   glFinish();
-  glutSwapBuffers();
+  glDisable(GL_TEXTURE_2D);
+  glPopMatrix();
 }
 
 int main() {
-  glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH);
+  glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH);
   glutInitWindowPosition(30, 40);
   glutInitWindowSize(640, 480);
   glutCreateWindow("mine");

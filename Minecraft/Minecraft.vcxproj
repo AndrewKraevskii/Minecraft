@@ -152,9 +152,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Object3d.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Block.h" />
+    <ClInclude Include="Object3d.h" />
     <ClInclude Include="sfml_part\Vector2.hpp" />
     <ClInclude Include="sfml_part\Vector3.hpp" />
   </ItemGroup>
