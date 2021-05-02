@@ -9,7 +9,7 @@ void Init() {
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_LIGHTING);
   glEnable(GL_LIGHT0);
-  //glEnable(GL_LIGHT5);
+  // glEnable(GL_LIGHT5);
   glEnable(GL_COLOR_MATERIAL);
 }
 
@@ -21,10 +21,14 @@ void Reshape(int w, int h) {
   double alpha = (double)h / w;
 
   glViewport(0, 0, window_size.x, window_size.y);
+
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  glOrtho(-1, 1, -alpha, +alpha, -100, 100);
-  gluLookAt(10, 0, 3, 0, 0, 0, 0, 0, 1);
+
+  gluPerspective(60, 1 / alpha, 0.1, 100);
+  // glOrtho(-1, 1, -alpha, +alpha, -100, 100);
+
+  gluLookAt(5, 5, 5, 0, 0, 0, 0, 0, 1);
   glMatrixMode(GL_MODELVIEW);
 }
 
@@ -43,7 +47,10 @@ void Special(int key, int x, int y) {
 void Display() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   Block block({0, 0, 0}, {1, 1, 1}, {10, 0, 0});
-  block.Draw();
+  for (size_t i = 0; i < 5; i++) {
+    block.Draw();
+    block.move({1, 0, 0});
+  }
 
   glFinish();
   glutSwapBuffers();

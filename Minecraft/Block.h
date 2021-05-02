@@ -10,10 +10,11 @@ class Block {
   sf::Vector3d rotation;
 
  public:
-
   Block(sf::Vector3d position = {0, 0, 0}, sf::Vector3d size = {1, 1, 1},
         sf::Vector3d rotation = {0, 0, 0})
       : position(position), size(size), rotation(rotation) {}
+
+  void move(sf::Vector3d move) { position += move; }
 
   void Draw() {
     glPushMatrix();
