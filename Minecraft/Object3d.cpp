@@ -4,39 +4,7 @@
 
 #include <iostream>
 #include <sstream>
-
-/*void Object3d::load(std::ifstream& file) {
-  file.seekg(0, file.beg);
-  std::string str;
-  while (file >> str) {
-    if (str == "v") {
-      sf::Vector3d pos;
-      file >> pos.x >> pos.y >> pos.z;
-      vertexes.push_back(pos);
-    } else if (str == "vt") {
-      sf::Vector2d pos;
-      file >> pos.x >> pos.y;
-      UVs.push_back(pos);
-    } else if (str == "vn") {
-      sf::Vector3d norm;
-      file >> norm.x >> norm.y >> norm.z;
-      normals.push_back(norm);
-    } else if (str == "f") {
-      int v, vt, vn;
-      faces.push_back({});
-      std::getline(file, str);
-      std::stringstream stream(str);
-      while (!stream.eof()) {
-        stream >> v;
-        stream.get();
-        stream >> vt;
-        stream.get();
-        stream >> vn;
-        faces.back().push_back({v - 1, vt - 1, vn - 1});
-      };
-    }
-  }
-}*/
+#include <vector>
 
 void Object3d::draw() {
   for (auto& face : faces) {
@@ -56,34 +24,9 @@ void Object3d::draw() {
   }
 }
 
-static unsigned char* readBMP(char* filename) {
-  int i;
-  std::ifstream fi(filename);
-  unsigned char info[54];
 
-  // read the 54-byte header
-  fi.read((char*)&info, 54);
-
-  // extract image height and width from header
-  int width = *(int*)&info[0x12];
-  int height = *(int*)&info[0x16];
-
-  // allocate 3 bytes per pixel
-  int size = 3 * width * height;
-  unsigned char* data = new unsigned char[size];
-
-  // read the rest of the data at once
-
-  for (i = 0; !fi.eof(); i += 3) {
-    // flip the order of every 3 bytes
-    fi >> data[i + 2];
-    fi >> data[i + 1];
-    fi >> data[i];
-  }
-
-  return data;
-}
-
+// Стырено отсюда
+/////////////////////////////////
 #define DATA_OFFSET_OFFSET 0x000A
 #define WIDTH_OFFSET 0x0012
 #define HEIGHT_OFFSET 0x0016
@@ -93,7 +36,7 @@ static unsigned char* readBMP(char* filename) {
 #define NO_COMPRESION 0
 #define MAX_NUMBER_OF_COLORS 0
 #define ALL_COLORS_REQUIRED 0
-#pragma warning(disable : 4996).
+#pragma warning(disable : 4996)
 
 typedef unsigned int int32;
 typedef short int16;
@@ -102,6 +45,12 @@ typedef unsigned char byte;
 void ReadImage(const char* fileName, byte** pixels, int32* width, int32* height,
                int32* bytesPerPixel) {
   FILE* imageFile = fopen(fileName, "rb");
+
+  if (imageFile == nullptr) {
+    *pixels = nullptr;
+    return;
+  }
+
   int32 dataOffset;
   fseek(imageFile, DATA_OFFSET_OFFSET, SEEK_SET);
   fread(&dataOffset, 4, 1, imageFile);
@@ -135,7 +84,43 @@ void ReadImage(const char* fileName, byte** pixels, int32* width, int32* height,
     (*pixels)[i + 2] = tmp;
   }
 }
+/////////////////////////////////
 
+
+void Object3d::loadOBJ(std::string file_name) {
+  std::ifstream file(file_name);
+
+  file.seekg(0, file.beg);
+  std::string str;
+  while (file >> str) {
+    if (str == "v") {
+      Vector3d pos;
+      file >> pos.x >> pos.y >> pos.z;
+      vertexes.push_back(pos);
+    } else if (str == "vt") {
+      Vector2d pos;
+      file >> pos.x >> pos.y;
+      UVs.push_back(pos);
+    } else if (str == "vn") {
+      Vector3d norm;
+      file >> norm.x >> norm.y >> norm.z;
+      normals.push_back(norm);
+    } else if (str == "f") {
+      int v, vt, vn;
+      faces.push_back({});
+      std::getline(file, str);
+      std::stringstream stream(str);
+      while (!stream.eof()) {
+        stream >> v;
+        stream.get();
+        stream >> vt;
+        stream.get();
+        stream >> vn;
+        faces.back().push_back({v - 1, vt - 1, vn - 1});
+      };
+    }
+  }
+}
 
 Object3d::Object3d(std::string file_name) {
   std::string obj = ".obj";
@@ -154,20 +139,9 @@ Object3d::Object3d(std::string file_name) {
 
   glBindTexture(GL_TEXTURE_2D, texture[0]);
 
-  /* glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                   GL_LINEAR_MIPMAP_NEAREST);
-
-   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-   */
   gluBuild2DMipmaps(GL_TEXTURE_2D, 3, w, h, GL_RGB, GL_UNSIGNED_BYTE, data);
 
   delete data;
-  data = nullptr;
 }
-
-Object3d::Object3d() : texture{0} {}
 
 Object3d::~Object3d() {}
