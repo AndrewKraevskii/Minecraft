@@ -157,11 +157,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="lodepng.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Object3d.cpp" />
+    <ClCompile Include="model3d.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Object3d.h" />
+    <ClInclude Include="lodepng.h" />
+    <ClInclude Include="model3d.h" />
+    <ClInclude Include="vectors.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

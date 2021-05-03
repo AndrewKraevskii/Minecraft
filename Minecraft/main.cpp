@@ -1,7 +1,13 @@
 #include <glut.h>
 #include <stdlib.h>
 
-#include "Object3d.h"
+#include <iostream>
+#include <vector>
+
+#include "model3d.h"
+#include "vectors.h"
+
+#define FPS 60
 
 double get_time() {
   static clock_t start_time = clock();
@@ -10,26 +16,34 @@ double get_time() {
 
 void Init() {
   glEnable(GL_DEPTH_TEST);
+  glEnable(GL_ALPHA_TEST);
   glEnable(GL_LIGHTING);
   glEnable(GL_LIGHT0);
   glEnable(GL_COLOR_MATERIAL);
+  glClearColor(1, 1, 1, 0);
 }
 
-void Idle() { glutPostRedisplay(); }
+void Idle() {
+  static double last = get_time();
+  std::cout << get_time() - last << "\n";
+  last = get_time();
+
+  glutPostRedisplay();
+}
 
 void Reshape(int w, int h) {
   Vector2i window_size(w, h);
 
-  double alpha = (double)h / w;
+  double alpha = (double)w / h;
 
   glViewport(0, 0, window_size.x, window_size.y);
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
 
-  gluPerspective(60, 1 / alpha, 0.1, 100);
+  gluPerspective(60, alpha, 0.1, 100);
 
-  gluLookAt(5, 5, 5, 0, 0, 0, 0, 0, 1);
+  gluLookAt(5, 0, 0, 0, 0, 0, 0, 0, 1);
   glMatrixMode(GL_MODELVIEW);
 }
 
@@ -50,13 +64,18 @@ void Display() {
   {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_TEXTURE_2D);
-    static Object3d obj("block");
-    glRotated(get_time() * 100, 0, 1, 0.3);
+    static Model3d obj("block.obj", "block.bmp");
+    glRotated(get_time() * 200, 0, 1, 0.5);
     obj.draw();
     glFinish();
     glDisable(GL_TEXTURE_2D);
   }
   glPopMatrix();
+}
+
+void timer(int extra) {
+  Idle();
+  glutTimerFunc(1000 / FPS, timer, 0);
 }
 
 int main() {
@@ -69,7 +88,11 @@ int main() {
   glutReshapeFunc(Reshape);
   glutDisplayFunc(Display);
   glutSpecialFunc(Special);
-  glutIdleFunc(Idle);
+
+  glutTimerFunc((double)1 / FPS, timer, 0);
+
+  // glutIdleFunc(Idle);
+
   Init();
 
   glutMainLoop();

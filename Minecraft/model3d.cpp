@@ -1,4 +1,4 @@
-#include "Object3d.h"
+#include "model3d.h"
 
 #include <glut.h>
 
@@ -6,7 +6,9 @@
 #include <sstream>
 #include <vector>
 
-void Object3d::draw() {
+#include "lodepng.h"
+
+void Model3d::draw() {
   for (auto& face : faces) {
     glBindTexture(GL_TEXTURE_2D, texture[0]);
     glBegin(GL_POLYGON);
@@ -23,7 +25,6 @@ void Object3d::draw() {
     glEnd();
   }
 }
-
 
 // Стырено отсюда
 /////////////////////////////////
@@ -42,8 +43,8 @@ typedef unsigned int int32;
 typedef short int16;
 typedef unsigned char byte;
 
-void ReadImage(const char* fileName, byte** pixels, int32* width, int32* height,
-               int32* bytesPerPixel) {
+void ReadBMP(const char* fileName, byte** pixels, int32* width, int32* height,
+             int32* bytesPerPixel) {
   FILE* imageFile = fopen(fileName, "rb");
 
   if (imageFile == nullptr) {
@@ -86,8 +87,7 @@ void ReadImage(const char* fileName, byte** pixels, int32* width, int32* height,
 }
 /////////////////////////////////
 
-
-void Object3d::loadOBJ(std::string file_name) {
+void Model3d::loadOBJ(std::string file_name) {
   std::ifstream file(file_name);
 
   file.seekg(0, file.beg);
@@ -122,26 +122,54 @@ void Object3d::loadOBJ(std::string file_name) {
   }
 }
 
-Object3d::Object3d(std::string file_name) {
-  std::string obj = ".obj";
-  std::string bmp = ".bmp";
+Model3d::Model3d(std::string file_name) { loadOBJ(file_name); }
 
-  loadOBJ(file_name + obj);
-  int32 w, h;
-
-  std::string name(file_name + bmp);
-
-  unsigned char* data;
-  int32 bpp;
-  ReadImage(name.data(), &data, &w, &h, &bpp);
-
-  glGenTextures(1, texture);
-
-  glBindTexture(GL_TEXTURE_2D, texture[0]);
-
-  gluBuild2DMipmaps(GL_TEXTURE_2D, 3, w, h, GL_RGB, GL_UNSIGNED_BYTE, data);
-
-  delete data;
+std::string tolower(std::string str) {
+  std::string lowstr;
+  for (auto& x : str) {
+    lowstr += tolower(x);
+  }
+  return lowstr;
 }
 
-Object3d::~Object3d() {}
+Model3d::Model3d(std::string file_obj, std::string texture_file) {
+  loadOBJ(file_obj);
+
+  int32 w, h;
+  int32 bpp;
+
+  std::string expansion = texture_file.substr(texture_file.rfind('.') + 1, 3);
+
+  unsigned char* data = nullptr;
+  if (tolower(expansion) == "bmp") {
+    ReadBMP(texture_file.data(), &data, &w, &h, &bpp);
+    if (data) {
+      glGenTextures(1, texture);
+
+      glBindTexture(GL_TEXTURE_2D, texture[0]);
+
+      gluBuild2DMipmaps(GL_TEXTURE_2D, 3, w, h, GL_RGB, GL_UNSIGNED_BYTE, data);
+
+      delete[] data;
+    }
+  } else {
+    std::vector<unsigned char> image;
+    unsigned width, height;
+
+    unsigned error = lodepng::decode(image, width, height, texture_file);
+
+    if (error)
+      std::cout << "decoder error " << error << ": "
+                << lodepng_error_text(error) << std::endl;
+    else {
+      glGenTextures(1, texture);
+
+      glBindTexture(GL_TEXTURE_2D, texture[0]);
+
+      gluBuild2DMipmaps(GL_TEXTURE_2D, 3, width, height, GL_RGBA,
+                        GL_UNSIGNED_BYTE, image.data());
+    }
+  }
+}
+
+Model3d::~Model3d() {}
