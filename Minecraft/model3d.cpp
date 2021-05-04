@@ -26,25 +26,12 @@ void Model3d::draw() {
   }
 }
 
-// Стырено отсюда
-/////////////////////////////////
-#define DATA_OFFSET_OFFSET 0x000A
-#define WIDTH_OFFSET 0x0012
-#define HEIGHT_OFFSET 0x0016
-#define BITS_PER_PIXEL_OFFSET 0x001C
-#define HEADER_SIZE 14
-#define INFO_HEADER_SIZE 40
-#define NO_COMPRESION 0
-#define MAX_NUMBER_OF_COLORS 0
-#define ALL_COLORS_REQUIRED 0
 #pragma warning(disable : 4996)
 
-typedef unsigned int int32;
-typedef short int16;
 typedef unsigned char byte;
 
-void ReadBMP(const char* fileName, byte** pixels, int32* width, int32* height,
-             int32* bytesPerPixel) {
+static void ReadBMP(const char* fileName, byte** pixels, uint32_t* width,
+                    uint32_t* height, uint32_t* bytesPerPixel) {
   FILE* imageFile = fopen(fileName, "rb");
 
   if (imageFile == nullptr) {
@@ -52,17 +39,17 @@ void ReadBMP(const char* fileName, byte** pixels, int32* width, int32* height,
     return;
   }
 
-  int32 dataOffset;
-  fseek(imageFile, DATA_OFFSET_OFFSET, SEEK_SET);
+  uint32_t dataOffset;
+  fseek(imageFile, 0x000A, SEEK_SET);
   fread(&dataOffset, 4, 1, imageFile);
-  fseek(imageFile, WIDTH_OFFSET, SEEK_SET);
+  fseek(imageFile, 0x0012, SEEK_SET);
   fread(width, 4, 1, imageFile);
-  fseek(imageFile, HEIGHT_OFFSET, SEEK_SET);
+  fseek(imageFile, 0x0016, SEEK_SET);
   fread(height, 4, 1, imageFile);
-  int16 bitsPerPixel;
-  fseek(imageFile, BITS_PER_PIXEL_OFFSET, SEEK_SET);
+  int16_t bitsPerPixel;
+  fseek(imageFile, 0x001C, SEEK_SET);
   fread(&bitsPerPixel, 2, 1, imageFile);
-  *bytesPerPixel = ((int32)bitsPerPixel) / 8;
+  *bytesPerPixel = ((uint32_t)bitsPerPixel) / 8;
 
   int paddedRowSize =
       (int)(4 * ceil((float)(*width) / 4.0f)) * (*bytesPerPixel);
@@ -89,7 +76,10 @@ void ReadBMP(const char* fileName, byte** pixels, int32* width, int32* height,
 
 void Model3d::loadOBJ(std::string file_name) {
   std::ifstream file(file_name);
-
+  vertexes.clear();
+  UVs.clear();
+  normals.clear();
+  faces.clear();
   file.seekg(0, file.beg);
   std::string str;
   while (file >> str) {
@@ -124,7 +114,7 @@ void Model3d::loadOBJ(std::string file_name) {
 
 Model3d::Model3d(std::string file_name) { loadOBJ(file_name); }
 
-std::string tolower(std::string str) {
+static std::string tolower(std::string str) {
   std::string lowstr;
   for (auto& x : str) {
     lowstr += tolower(x);
@@ -133,10 +123,16 @@ std::string tolower(std::string str) {
 }
 
 Model3d::Model3d(std::string file_obj, std::string texture_file) {
+  load(file_obj, texture_file);
+}
+
+Model3d::~Model3d() {}
+
+void Model3d::load(std::string file_obj, std::string texture_file) {
   loadOBJ(file_obj);
 
-  int32 w, h;
-  int32 bpp;
+  uint32_t w, h;
+  uint32_t bpp;
 
   std::string expansion = texture_file.substr(texture_file.rfind('.') + 1, 3);
 
@@ -171,5 +167,3 @@ Model3d::Model3d(std::string file_obj, std::string texture_file) {
     }
   }
 }
-
-Model3d::~Model3d() {}
