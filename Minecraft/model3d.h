@@ -16,10 +16,11 @@ class Model3d {
   void loadOBJ(std::string file_name);
 
  public:
+  Model3d(){};
   Model3d(std::string file_name);
   Model3d(std::string file_obj, std::string texture_file);
 
   void draw();
-
+  void load(std::string file_obj, std::string texture_file);
   ~Model3d();
 };
