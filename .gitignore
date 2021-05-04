@@ -339,3 +339,5 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 /Minecraft/пинал.blend
+/Minecraft/Camera/Camera.cpp
+/Minecraft/Camera/Camera.hpp
