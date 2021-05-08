@@ -1,10 +1,15 @@
 #pragma once
+#include <math.h>
 
 template <typename T>
 class Vector2 {
  public:
   Vector2();
   Vector2(T X, T Y);
+
+  Vector2 unit_vector() { return *this / mod(); }
+
+  double mod() { return sqrt(this->x * this->x + this->y * this->y); }
 
   template <typename U>
   explicit Vector2(const Vector2<U>& vector);
@@ -85,6 +90,12 @@ inline Vector2<T>& operator*=(Vector2<T>& left, T right) {
 
 ////////////////////////////////////////////////////////////
 template <typename T>
+inline double operator*(const Vector2<T>& left, const Vector2<T>& right) {
+  return right.x * left.x + right.y * left.y;
+}
+
+////////////////////////////////////////////////////////////
+template <typename T>
 inline Vector2<T> operator/(const Vector2<T>& left, T right) {
   return Vector2<T>(left.x / right, left.y / right);
 }
@@ -116,6 +127,17 @@ class Vector3 {
   Vector3();
 
   Vector3(T X, T Y, T Z);
+
+  Vector3 unit_vector() { return *this / mod(); }
+
+  double mod() {
+    return sqrt(this->x * this->x + this->y * this->y + this->z * this->z);
+  }
+
+  Vector3 vmul(const Vector3& other) {
+    return Vector3(this->y * other.y - this->z * other.y, this->z * other.x - this->x * other.z,
+                   this->x * other.y - this->y * other.x);
+  }
 
   template <typename U>
   explicit Vector3(const Vector3<U>& vector);
@@ -198,6 +220,12 @@ inline Vector3<T>& operator*=(Vector3<T>& left, T right) {
   left.z *= right;
 
   return left;
+}
+
+////////////////////////////////////////////////////////////
+template <typename T>
+inline double operator*(const Vector3<T>& left, const Vector3<T>& right) {
+  return right.x * left.x + right.y * left.y + right.z * left.z;
 }
 
 ////////////////////////////////////////////////////////////

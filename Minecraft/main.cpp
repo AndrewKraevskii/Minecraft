@@ -44,9 +44,9 @@ void Reshape(int w, int h) {
 
   gluPerspective(60, alpha, 0.1, 100);
 
-  Vector3d position{0, 0, 5};
+  Vector3d position{-5, 0, 0};
 
-  gluLookAt(position.x, position.y, position.z, 0, 0, 0, 0, 1, 0);
+  gluLookAt(position.x, position.y, position.z, 0, 0, 0, 0, 0, 1);
   glMatrixMode(GL_MODELVIEW);
 }
 
