@@ -26,7 +26,7 @@ void Init() {
 
 void Idle() {
   static double last = get_time();
-  std::cout << 1 / (get_time() - last) << "\n";
+  //std::cout << 1 / (get_time() - last) << "\n";
   last = get_time();
 
   glutPostRedisplay();
@@ -62,6 +62,14 @@ void Special(int key, int x, int y) {
   }
 }
 void Display() {
+  static int frames = 0;
+  frames++;
+  static double last = get_time();
+  if ((int)(get_time() - last)) {
+    std::cout << 1.0 * frames / (get_time() - last) << "\n";
+    last = get_time();
+    frames = 0;
+  }
   glPushMatrix();
   {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -93,7 +101,7 @@ int main() {
   glutSpecialFunc(Special);
 
   glutTimerFunc((double)1 / FPS, timer, 0);
-
+ // glutIdleFunc(Idle);
   Init();
 
   glutMainLoop();
