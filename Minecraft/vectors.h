@@ -134,11 +134,6 @@ class Vector3 {
     return sqrt(this->x * this->x + this->y * this->y + this->z * this->z);
   }
 
-  Vector3 vmul(const Vector3& other) {
-    return Vector3(this->y * other.y - this->z * other.y, this->z * other.x - this->x * other.z,
-                   this->x * other.y - this->y * other.x);
-  }
-
   template <typename U>
   explicit Vector3(const Vector3<U>& vector);
 
@@ -176,6 +171,13 @@ inline Vector3<T>& operator+=(Vector3<T>& left, const Vector3<T>& right) {
   left.z += right.z;
 
   return left;
+}
+
+template <typename T>
+inline Vector3<T> cross(const Vector3<T>& first, const Vector3<T>& second) {
+  return Vector3<T>(first.y * second.z - first.z * second.y,
+                 first.z * second.x - first.x * second.z,
+                 first.x * second.y - first.y * second.x);
 }
 
 ////////////////////////////////////////////////////////////
