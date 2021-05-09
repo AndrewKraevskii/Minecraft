@@ -44,16 +44,6 @@ void Reshape(int w, int h) {
   double alpha = (double)w / h;
 
   glViewport(0, 0, window_size.x, window_size.y);
-
-  /*
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-
-  gluPerspective(60, alpha, 0.1, 100);
-
-  camera.put_camera();
-  glMatrixMode(GL_MODELVIEW);
-  */
 }
 
 void Keyboard(unsigned char key, int x, int y) {
@@ -73,12 +63,9 @@ void Special(int key, int x, int y) {
   if (key == GLUT_KEY_F4 && (glutGetModifiers() & GLUT_ACTIVE_ALT)) {
     exit(0);
   }
-
-
 }
 
 void MouseMove(int x, int y) {
-  // std::cout << x << " " << y << "\n";
   if (mouse.x == -1 || mouse.y == -1) {
     mouse = {x, y};
     return;
@@ -107,7 +94,7 @@ void Display() {
   frames++;
   static double last = get_time();
   if ((int)(get_time() - last)) {
-    std::cout << 1.0 * frames / (get_time() - last) << "\n";
+    std::cout << "fps = " << 1.0 * frames / (get_time() - last) << "\n";
     last = get_time();
     frames = 0;
   }
@@ -118,9 +105,8 @@ void Display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_TEXTURE_2D);
 
-    // glRotated(get_time() * 100, 1, 1, 0.5);
     static Model3d obj("block.obj", "block.png");
-    
+
     obj.draw();
 
     glTranslated(-5, 0, 5);
@@ -161,11 +147,3 @@ int main() {
 
   return 0;
 }
-/*
-#include "Camera.h"
-
-int main() {
-  Camera cam({0, 0, 0}, {0, 1, 0});
-  cam.setlocal_pos({0, 1, 1});
-}
-*/
