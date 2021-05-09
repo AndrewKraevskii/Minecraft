@@ -54,10 +54,10 @@ void Camera::rotate_v(radian angle) {
   double cur_angle = acos((direction.unit_vector() * up_vector.unit_vector()));
   std::cout << direction.mod() << "\n";
 
-  if (cur_angle - angle <= 0.2 && -angle < 0) {
+  if (cur_angle - angle <= 0.01 && -angle < 0) {
     return;
   }
-  if (cur_angle - angle >= atan(1) * 4 - 0.2 && -angle > 0) {
+  if (cur_angle - angle >= atan(1) * 4 - 0.01 && -angle > 0) {
     return;
   }
 

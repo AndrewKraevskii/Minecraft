@@ -59,6 +59,13 @@ void Reshape(int w, int h) {
 void Keyboard(unsigned char key, int x, int y) {
   Vector2i mouse_position(x, y);
   if (key == 27) exit(0);
+
+  if (key == 'w') {
+    camera.movelocal({0.1, 0, 0});
+  }
+  if (key == 's') {
+    camera.movelocal({-0.1, 0, 0});
+  }
 }
 
 void Special(int key, int x, int y) {
@@ -67,12 +74,7 @@ void Special(int key, int x, int y) {
     exit(0);
   }
 
-  if (key == GLUT_KEY_LEFT) {
-    camera.rotate_g(0.1);
-  }
-  if (key == GLUT_KEY_RIGHT) {
-    camera.rotate_g(-0.1);
-  }
+
 }
 
 void MouseMove(int x, int y) {
