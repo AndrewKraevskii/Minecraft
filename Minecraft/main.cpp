@@ -103,7 +103,7 @@ void Display() {
   frames++;
   static double last = get_time();
   if ((int)(get_time() - last)) {
-    std::cout << "fps = " << 1.0 * frames / (get_time() - last) << "\n";
+    //std::cout << "fps = " << 1.0 * frames / (get_time() - last) << "\n";
     last = get_time();
     frames = 0;
   }
@@ -136,12 +136,15 @@ void timer(int extra) {
 }
 
 void Init() {
+  glutIgnoreKeyRepeat(1);	
   Keyboard::init();
   Keyboard::callback_down(KeyboardFunc);
   Keyboard::special_callback_down(Special);
 }
 
 int main() {
+  setlocale(0, "ru");
+
   glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH);
   glutInitWindowPosition(30, 40);
   glutInitWindowSize(1000, 600);

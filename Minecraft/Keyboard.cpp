@@ -26,21 +26,32 @@ void Keyboard::init() {
 }
 
 void Keyboard::button_down(unsigned char key, int x, int y) {
+  if (key >= 128)
+    return;  // некоректно работает с символами с русской раскладки. Поэтому
+             // придётся ограничить ввод
+
   if (is_button_down[key] == false) {
     for (auto& func : callbacks_down) {
       func(key, x, y);
     }
   }
   is_button_down[key] = true;
+
+  std::cout << key << " down\n";
 }
 
 void Keyboard::button_up(unsigned char key, int x, int y) {
+  if (key >= 128)
+    return;  // некоректно работает с символами с русской раскладки. Поэтому
+             // придётся ограничить ввод
+
   if (is_button_down[key]) {
     for (auto& func : callbacks_up) {
       func(key, x, y);
     }
   }
   is_button_down[key] = false;
+  std::cout << key << " up\n";
 }
 
 void Keyboard::special_down(int key, int x, int y) {
