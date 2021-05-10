@@ -1,6 +1,10 @@
+
+#define WIN32_LEAN_AND_MEAN
+
 #include <glut.h>
 #include <math.h>
 #include <stdlib.h>
+#include <windows.h>
 
 #include <iostream>
 #include <vector>
@@ -17,6 +21,10 @@
 
 Camera camera({-5, 0, 0}, {1, 0, 0}, {0, 0, 1});
 Vector2i mouse = {-1, -1};
+RECT rect;
+HINSTANCE hinst;         // handle to current instance
+HCURSOR hCurs1, hCurs2;  // cursor handles
+
 
 double get_time() {
   static clock_t start_time = clock();
@@ -60,10 +68,11 @@ void Reshape(int w, int h) {
   double alpha = (double)w / h;
 
   glViewport(0, 0, window_size.x, window_size.y);
-  /*
+
   rect = {glutGet(GLUT_WINDOW_X), glutGet(GLUT_WINDOW_Y),
           glutGet(GLUT_WINDOW_X) + glutGet(GLUT_WINDOW_WIDTH),
-          glutGet(GLUT_WINDOW_Y) + glutGet(GLUT_WINDOW_HEIGHT)};*/
+          glutGet(GLUT_WINDOW_Y) + glutGet(GLUT_WINDOW_HEIGHT)};
+  ClipCursor(&rect);
 }
 
 void KeyboardFunc(unsigned char key, int x, int y) {
@@ -79,7 +88,7 @@ void Special(int key, int x, int y) {
 }
 
 void MouseMove(int x, int y) {
-  glutSetCursor(GLUT_CURSOR_NONE);
+  // glutSetCursor(GLUT_CURSOR_NONE);
   if (mouse.x == -1 || mouse.y == -1) {
     mouse = {x, y};
     return;
@@ -88,12 +97,12 @@ void MouseMove(int x, int y) {
   Vector2i move = mouse - Vector2i{x, y};
   camera.rotate_g(MOUSE_SENSE_X * move.x);
   camera.rotate_v(MOUSE_SENSE_Y * move.y);
-
-  mouse = {glutGet(GLUT_WINDOW_WIDTH) / 2, glutGet(GLUT_WINDOW_HEIGHT) / 2};
-  glutWarpPointer(mouse.x, mouse.y);
+  
+  mouse = Vector2i{x, y};
+  //mouse = {glutGet(GLUT_WINDOW_WIDTH) / 2, glutGet(GLUT_WINDOW_HEIGHT) / 2};
+  //glutWarpPointer(mouse.x, mouse.y);
 }
 
-void EntryFunc(int state) {}
 
 void Display() {
   // Camera movement
@@ -143,6 +152,16 @@ void timer(int extra) {
 }
 
 void Init() {
+
+  // Create a standard hourglass cursor.
+
+  hCurs1 = LoadCursor(NULL, IDC_WAIT);
+
+  // Create a custom cursor based on a resource.
+
+  hCurs2 = LoadCursor(hinst, MAKEINTRESOURCE(240));
+
+  
   glutIgnoreKeyRepeat(1);
   Keyboard::init();
   Keyboard::callback_down(KeyboardFunc);
@@ -162,7 +181,7 @@ int main() {
 
   glutPassiveMotionFunc(MouseMove);
 
-  glutEntryFunc(EntryFunc);
+  //glutEntryFunc(EntryFunc);
 
   glutTimerFunc((double)1 / FPS, timer, 0);
   // glutIdleFunc(Idle);
