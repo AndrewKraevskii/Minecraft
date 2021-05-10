@@ -6,12 +6,14 @@
 #include <vector>
 
 #include "Camera.h"
+#include "Keyboard.h"
 #include "model3d.h"
 #include "vectors.h"
 
 #define FPS 60
 #define MOUSE_SENSE_X 0.001
 #define MOUSE_SENSE_Y 0.001
+#define SPEED 3
 
 Camera camera({-5, 0, 0}, {0, 1, 0}, {0, 0, 1});
 Vector2i mouse = {-1, -1};
@@ -21,7 +23,7 @@ double get_time() {
   return (double)(clock() - start_time) / CLOCKS_PER_SEC;
 }
 
-void Init() {
+void glutInit() {
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_ALPHA_TEST);
   glEnable(GL_LIGHTING);
@@ -33,7 +35,21 @@ void Init() {
 void Idle() {
   static double last = get_time();
   // std::cout << 1 / (get_time() - last) << "\n";
+  double pass_time = get_time() - last;
   last = get_time();
+
+  if (Keyboard::is_button_pressed('w') || Keyboard::is_button_pressed('ö')) {
+    camera.movelocal(Vector3d({SPEED, 0, 0}) * pass_time);
+  }
+  if (Keyboard::is_button_pressed('s') || Keyboard::is_button_pressed('û')) {
+    camera.movelocal(Vector3d{-SPEED, 0, 0} * pass_time);
+  }
+  if (Keyboard::is_button_pressed('a') || Keyboard::is_button_pressed('ô')) {
+    camera.movelocal(Vector3d{0, SPEED, 0} * pass_time);
+  }
+  if (Keyboard::is_button_pressed('d') || Keyboard::is_button_pressed('â')) {
+    camera.movelocal(Vector3d{0, -SPEED, 0} * pass_time);
+  }
 
   glutPostRedisplay();
 }
@@ -46,21 +62,14 @@ void Reshape(int w, int h) {
   glViewport(0, 0, window_size.x, window_size.y);
 }
 
-void Keyboard(unsigned char key, int x, int y) {
+void KeyboardFunc(unsigned char key, int x, int y) {
   Vector2i mouse_position(x, y);
   if (key == 27) exit(0);
-
-  if (key == 'w') {
-    camera.movelocal({0.1, 0, 0});
-  }
-  if (key == 's') {
-    camera.movelocal({-0.1, 0, 0});
-  }
 }
 
 void Special(int key, int x, int y) {
   Vector2i mouse_position(x, y);
-  if (key == GLUT_KEY_F4 && (glutGetModifiers() & GLUT_ACTIVE_ALT)) {
+  if (key == GLUT_KEY_F4 && (Keyboard::get_modifiers() & GLUT_ACTIVE_ALT)) {
     exit(0);
   }
 }
@@ -126,21 +135,27 @@ void timer(int extra) {
   glutTimerFunc(1000 / FPS, timer, 0);
 }
 
+void Init() {
+  Keyboard::init();
+  Keyboard::callback_down(KeyboardFunc);
+  Keyboard::special_callback_down(Special);
+}
+
 int main() {
   glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH);
   glutInitWindowPosition(30, 40);
   glutInitWindowSize(1000, 600);
   glutCreateWindow("mine");
 
-  glutKeyboardFunc(Keyboard);
   glutReshapeFunc(Reshape);
   glutDisplayFunc(Display);
-  glutSpecialFunc(Special);
 
   glutPassiveMotionFunc(MouseMove);
 
   glutTimerFunc((double)1 / FPS, timer, 0);
   // glutIdleFunc(Idle);
+  glutInit();
+
   Init();
 
   glutMainLoop();

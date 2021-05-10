@@ -8,9 +8,9 @@ void Camera::moveglobal(Vector3d shift) { position += shift; }
 void Camera::movelocal(Vector3d shift) {
   position += shift.x * direction.unit_vector();
   position += (up_vector - (direction * up_vector / direction.mod()) *
-                               direction.unit_vector()) *
+                               direction.unit_vector()).unit_vector() *
               shift.z;
-  position += cross(up_vector, direction) / (direction * up_vector) * shift.y;
+  position += (cross(up_vector, direction)).unit_vector() * shift.y;
 }
 
 void Camera::setglobal_pos(Vector3d pos) { position = pos; }
