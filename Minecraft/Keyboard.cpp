@@ -19,6 +19,9 @@ void Keyboard::init() {
   for (auto& element : is_button_down) {
     element = false;
   }
+  for (auto& element : is_special_down) {
+    element = false;
+  }
   glutKeyboardFunc(button_down);
   glutKeyboardUpFunc(button_up);
   glutSpecialFunc(special_down);

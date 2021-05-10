@@ -15,7 +15,7 @@
 #define MOUSE_SENSE_Y 0.001
 #define SPEED 3
 
-Camera camera({-5, 0, 0}, {0, 1, 0}, {0, 0, 1});
+Camera camera({-5, 0, 0}, {1, 0, 0}, {0, 0, 1});
 Vector2i mouse = {-1, -1};
 
 double get_time() {
@@ -60,6 +60,10 @@ void Reshape(int w, int h) {
   double alpha = (double)w / h;
 
   glViewport(0, 0, window_size.x, window_size.y);
+  /*
+  rect = {glutGet(GLUT_WINDOW_X), glutGet(GLUT_WINDOW_Y),
+          glutGet(GLUT_WINDOW_X) + glutGet(GLUT_WINDOW_WIDTH),
+          glutGet(GLUT_WINDOW_Y) + glutGet(GLUT_WINDOW_HEIGHT)};*/
 }
 
 void KeyboardFunc(unsigned char key, int x, int y) {
@@ -75,11 +79,12 @@ void Special(int key, int x, int y) {
 }
 
 void MouseMove(int x, int y) {
+  glutSetCursor(GLUT_CURSOR_NONE);
   if (mouse.x == -1 || mouse.y == -1) {
     mouse = {x, y};
     return;
   }
-
+  std::cout << x << " " << y << "\n";
   Vector2i move = mouse - Vector2i{x, y};
   camera.rotate_g(MOUSE_SENSE_X * move.x);
   camera.rotate_v(MOUSE_SENSE_Y * move.y);
@@ -87,6 +92,8 @@ void MouseMove(int x, int y) {
   mouse = {glutGet(GLUT_WINDOW_WIDTH) / 2, glutGet(GLUT_WINDOW_HEIGHT) / 2};
   glutWarpPointer(mouse.x, mouse.y);
 }
+
+void EntryFunc(int state) {}
 
 void Display() {
   // Camera movement
@@ -103,7 +110,7 @@ void Display() {
   frames++;
   static double last = get_time();
   if ((int)(get_time() - last)) {
-    //std::cout << "fps = " << 1.0 * frames / (get_time() - last) << "\n";
+    // std::cout << "fps = " << 1.0 * frames / (get_time() - last) << "\n";
     last = get_time();
     frames = 0;
   }
@@ -136,7 +143,7 @@ void timer(int extra) {
 }
 
 void Init() {
-  glutIgnoreKeyRepeat(1);	
+  glutIgnoreKeyRepeat(1);
   Keyboard::init();
   Keyboard::callback_down(KeyboardFunc);
   Keyboard::special_callback_down(Special);
@@ -154,6 +161,8 @@ int main() {
   glutDisplayFunc(Display);
 
   glutPassiveMotionFunc(MouseMove);
+
+  glutEntryFunc(EntryFunc);
 
   glutTimerFunc((double)1 / FPS, timer, 0);
   // glutIdleFunc(Idle);
