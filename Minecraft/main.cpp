@@ -168,6 +168,15 @@ void Init() {
   Keyboard::special_callback_down(Special);
 }
 
+void EntryFunc(int state) {
+  if (!state) {
+    ClipCursor(nullptr);
+  } else {
+    
+    ClipCursor(&rect);
+  }
+}
+
 int main() {
   setlocale(0, "ru");
 
@@ -178,6 +187,8 @@ int main() {
 
   glutReshapeFunc(Reshape);
   glutDisplayFunc(Display);
+
+  glutEntryFunc(EntryFunc);
 
   glutPassiveMotionFunc(MouseMove);
 
