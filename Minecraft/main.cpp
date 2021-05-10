@@ -20,11 +20,11 @@
 #define SPEED 3
 
 Camera camera({-5, 0, 0}, {1, 0, 0}, {0, 0, 1});
-Vector2i mouse = {-1, -1};
+Vector2i mouse = {0, -0};
 RECT rect;
 HINSTANCE hinst;         // handle to current instance
 HCURSOR hCurs1, hCurs2;  // cursor handles
-
+HWND hwnd = nullptr;
 
 double get_time() {
   static clock_t start_time = clock();
@@ -40,7 +40,31 @@ void glutInit() {
   glClearColor(0, 0, 0, 0);
 }
 
+void MouseUpdate() {
+  if (hwnd == GetActiveWindow()) return;
+
+  tagPOINT point;
+  GetCursorPos(&point);
+  Vector2i position = {point.x - glutGet(GLUT_WINDOW_X),
+                       point.y - glutGet(GLUT_WINDOW_Y)};
+  glutSetCursor(GLUT_CURSOR_NONE);
+
+  Vector2i move = mouse - position;
+  camera.rotate_g(MOUSE_SENSE_X * move.x);
+  camera.rotate_v(MOUSE_SENSE_Y * move.y);
+
+  mouse = {glutGet(GLUT_WINDOW_WIDTH) / 2, glutGet(GLUT_WINDOW_HEIGHT) / 2};
+  glutWarpPointer(mouse.x, mouse.y);
+}
+
 void Idle() {
+  if (hwnd == nullptr) {
+    const char* title = "mine";
+
+    hwnd = FindWindow(NULL, (LPCWSTR)title);
+  }
+
+  MouseUpdate();
   static double last = get_time();
   // std::cout << 1 / (get_time() - last) << "\n";
   double pass_time = get_time() - last;
@@ -68,11 +92,6 @@ void Reshape(int w, int h) {
   double alpha = (double)w / h;
 
   glViewport(0, 0, window_size.x, window_size.y);
-
-  rect = {glutGet(GLUT_WINDOW_X), glutGet(GLUT_WINDOW_Y),
-          glutGet(GLUT_WINDOW_X) + glutGet(GLUT_WINDOW_WIDTH),
-          glutGet(GLUT_WINDOW_Y) + glutGet(GLUT_WINDOW_HEIGHT)};
-  ClipCursor(&rect);
 }
 
 void KeyboardFunc(unsigned char key, int x, int y) {
@@ -86,23 +105,6 @@ void Special(int key, int x, int y) {
     exit(0);
   }
 }
-
-void MouseMove(int x, int y) {
-  // glutSetCursor(GLUT_CURSOR_NONE);
-  if (mouse.x == -1 || mouse.y == -1) {
-    mouse = {x, y};
-    return;
-  }
-  std::cout << x << " " << y << "\n";
-  Vector2i move = mouse - Vector2i{x, y};
-  camera.rotate_g(MOUSE_SENSE_X * move.x);
-  camera.rotate_v(MOUSE_SENSE_Y * move.y);
-  
-  mouse = Vector2i{x, y};
-  //mouse = {glutGet(GLUT_WINDOW_WIDTH) / 2, glutGet(GLUT_WINDOW_HEIGHT) / 2};
-  //glutWarpPointer(mouse.x, mouse.y);
-}
-
 
 void Display() {
   // Camera movement
@@ -119,7 +121,7 @@ void Display() {
   frames++;
   static double last = get_time();
   if ((int)(get_time() - last)) {
-    // std::cout << "fps = " << 1.0 * frames / (get_time() - last) << "\n";
+    std::cout << "fps = " << 1.0 * frames / (get_time() - last) << "\n";
     last = get_time();
     frames = 0;
   }
@@ -152,7 +154,6 @@ void timer(int extra) {
 }
 
 void Init() {
-
   // Create a standard hourglass cursor.
 
   hCurs1 = LoadCursor(NULL, IDC_WAIT);
@@ -161,21 +162,15 @@ void Init() {
 
   hCurs2 = LoadCursor(hinst, MAKEINTRESOURCE(240));
 
-  
   glutIgnoreKeyRepeat(1);
   Keyboard::init();
   Keyboard::callback_down(KeyboardFunc);
   Keyboard::special_callback_down(Special);
 }
 
-void EntryFunc(int state) {
-  if (!state) {
-    ClipCursor(nullptr);
-  } else {
-    
-    ClipCursor(&rect);
-  }
-}
+void EntryFunc(int state) {}
+
+void MouseMove(int x, int y) {}
 
 int main() {
   setlocale(0, "ru");
@@ -190,9 +185,9 @@ int main() {
 
   glutEntryFunc(EntryFunc);
 
-  glutPassiveMotionFunc(MouseMove);
+  glutMotionFunc(MouseMove);
 
-  //glutEntryFunc(EntryFunc);
+  // glutEntryFunc(EntryFunc);
 
   glutTimerFunc((double)1 / FPS, timer, 0);
   // glutIdleFunc(Idle);
